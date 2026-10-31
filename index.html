@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz Menu Sakeya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Albert+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+/* Layout: colonna stretta come il menu verticale di Sakeya; inchiostro nero su carta, un sole rosso come unico accento */
+:root{
+  --paper:#fbfaf8; --card:#ffffff; --ink:#1c1a19; --muted:#6f6966; --line:#e4e0dc;
+  --sun:#d4281c; --sun-soft:#fbe7e4; --ok:#2c7a4b; --ok-soft:#e3f1e8; --ko:#c0261b; --ko-soft:#fbe3e0;
+  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
+  --body:"Albert Sans",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#151413; --card:#1f1d1c; --ink:#f2eeea; --muted:#aaa29d; --line:#36322f;
+  --sun:#ff6a5c; --sun-soft:#3b1f1c; --ok:#7fd1a0; --ok-soft:#1c3125; --ko:#ff8a7e; --ko-soft:#3d1e1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#151413; --card:#1f1d1c; --ink:#f2eeea; --muted:#aaa29d; --line:#36322f;
+  --sun:#ff6a5c; --sun-soft:#3b1f1c; --ok:#7fd1a0; --ok-soft:#1c3125; --ko:#ff8a7e; --ko-soft:#3d1e1b; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.wrap{max-width:580px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--ink)}
+.brand{display:flex;align-items:center;gap:10px}
+.sun{width:26px;height:26px;border-radius:50%;background:var(--sun);flex:none}
+h1{font-family:var(--display);font-weight:800;font-size:1.55rem;margin:0;letter-spacing:.06em;text-transform:uppercase;line-height:1.1}
+h1 small{display:block;font-size:.72rem;letter-spacing:.12em;color:var(--muted);font-weight:600;text-transform:none}
+.score{font-variant-numeric:tabular-nums;font-weight:600;font-size:.85rem;color:var(--muted);text-align:right;white-space:nowrap}
+.score b{color:var(--ink);font-size:1.1rem}
+.tabs{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card);align-self:flex-start}
+.tab{font:inherit;font-weight:700;font-size:.9rem;padding:7px 16px;border-radius:999px;border:none;background:none;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.view{display:flex;flex-direction:column;gap:16px}
+.lab{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.84rem;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip:disabled{opacity:.4;cursor:default}
+.tab:focus-visible,.chip:focus-visible,.opt:focus-visible,.next:focus-visible,.foot button:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.q .cat{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--sun);font-weight:700}
+.q .prompt{font-size:.85rem;color:var(--muted)}
+.q .big{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.2;text-wrap:balance;letter-spacing:.02em}
+.q .kj{font-family:var(--display);font-size:1.15rem;color:var(--muted)}
+.q .desc{font-size:1.05rem}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:left;padding:12px 14px;border-radius:4px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.opt .k{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:.75rem;font-weight:700;color:var(--muted)}
+.opt .t{min-width:0}
+.opt.name .t{font-family:var(--display);font-weight:800;font-size:1.08rem}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.right .k{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.opt.wrong{background:var(--ko-soft);border-color:var(--ko)}
+.opt.wrong .k{background:var(--ko);border-color:var(--ko);color:var(--card)}
+.sm{color:var(--muted);font-size:.92em}
+.fb{border-left:3px solid var(--ok);background:var(--card);padding:12px 14px;border-radius:0 4px 4px 0;display:flex;flex-direction:column;gap:5px}
+.fb.bad{border-left-color:var(--ko)}
+.fb .v{font-weight:700}
+.fb .n{font-family:var(--display);font-weight:800;font-size:1.15rem}
+.fb .n span{font-weight:600;color:var(--muted);margin-left:8px}
+.fb .meta{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mean{background:var(--sun-soft);border-radius:4px;padding:8px 10px;font-size:.9rem}
+.mean b{color:var(--sun)}
+.next{font:inherit;font-weight:700;padding:12px;border-radius:4px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;width:100%;margin-top:10px}
+.foot{font-size:.8rem;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.foot button{font:inherit;background:none;border:none;color:var(--sun);font-weight:600;cursor:pointer;padding:0}
+.search{font:inherit;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink)}
+.mcat h2{font-family:var(--display);font-weight:800;font-size:1.2rem;letter-spacing:.06em;text-transform:uppercase;margin:10px 0 2px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.mcat h2 span{font-size:.85rem;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:600}
+.mcat .intro{font-size:.85rem;color:var(--muted);margin:0 0 4px;padding-bottom:6px;border-bottom:1px solid var(--ink)}
+.dish{padding:12px 0;border-bottom:1px dashed var(--line);display:grid;grid-template-columns:1fr auto;gap:3px 12px}
+.dish .dn{font-family:var(--display);font-weight:800;font-size:1.05rem;min-width:0;letter-spacing:.02em}
+.dish .dn span{font-weight:600;color:var(--muted);margin-left:6px;font-size:.92em;letter-spacing:0}
+.dish .dp{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dish .ds,.dish .dd,.dish .mean{grid-column:1/-1}
+.dish .ds{font-weight:600}
+.dish .dd{color:var(--muted);font-size:.92rem}
+.gl{display:grid;grid-template-columns:minmax(0,9.5rem) minmax(0,1fr);gap:0 12px}
+.gl > div{padding:9px 0;border-bottom:1px dashed var(--line)}
+.gl .gt{font-family:var(--display);font-weight:800}
+.gl .gt span{display:block;font-weight:600;color:var(--muted);font-size:.9rem}
+.gl .gm{font-size:.94rem;min-width:0}
+@media (prefers-reduced-motion:no-preference){.opt,.chip,.tab{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="sun" aria-hidden="true"></div><h1>Sakeya<small>Quiz del menu · お食事</small></h1></div>
+    <div class="score" id="scorebox"><b id="sc">0/0</b><br>serie <span id="st">0</span></div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="t-quiz" role="tab" aria-selected="true" data-v="quiz">Quiz</button>
+    <button class="tab" id="t-menu" role="tab" aria-selected="false" data-v="menu">Menu</button>
+    <button class="tab" id="t-gloss" role="tab" aria-selected="false" data-v="gloss">Parole</button>
+  </div>
+
+  <div class="view" id="quizView">
+    <div>
+      <div class="lab">Modalità</div>
+      <div class="chips" id="modes">
+        <button class="chip" id="m-mix" data-m="mix" aria-pressed="true">Misto</button>
+        <button class="chip" id="m-nd" data-m="nd" aria-pressed="false">Nome → Piatto</button>
+        <button class="chip" id="m-dn" data-m="dn" aria-pressed="false">Piatto → Nome</button>
+        <button class="chip" id="m-nm" data-m="nm" aria-pressed="false">Nome → Significato</button>
+        <button class="chip" id="m-voc" data-m="voc" aria-pressed="false">Parole giapponesi</button>
+      </div>
+    </div>
+    <div>
+      <div class="lab">Sezioni</div>
+      <div class="chips" id="cats"></div>
+    </div>
+    <section class="q" id="q" aria-live="polite"></section>
+    <div class="opts" id="opts"></div>
+    <div id="fbwrap"></div>
+    <div class="foot"><span id="pool"></span><button id="reset">Azzera punteggio</button></div>
+  </div>
+
+  <div class="view" id="menuView" hidden>
+    <div class="chips" id="mcats"></div>
+    <input class="search" id="search" type="search" placeholder="Cerca un piatto, un ingrediente o una parola…" autocomplete="off">
+    <div id="mlist"></div>
+  </div>
+
+  <div class="view" id="glossView" hidden>
+    <p class="sm" style="margin:0">Le parole che tornano più spesso nei nomi dei piatti. Impararle aiuta a indovinare cosa c'è nel piatto.</p>
+    <input class="search" id="gsearch" type="search" placeholder="Cerca una parola…" autocomplete="off">
+    <div class="gl" id="glist"></div>
+  </div>
+</div>
+
+<script>
+const CATS={
+ oma:["Menu Omakase","おまかせ","Tre percorsi degustazione dello chef Masa, per ciascun ospite al tavolo. Omakase = «mi affido a te», cioè allo chef."],
+ sta:["Menu stagionale","季節のお献立","Antipasti, piatti caldi e sushi creativo d'autunno."],
+ ant:["Antipasti","前菜","Gran menu di Sakeya. Zensai = antipasto."],
+ kus:["Sumibi Kushiyaki","炭火串焼き","Spiedini su carbone binchotan, 2 spiedini per porzione. Sumibi = fuoco di carbone, kushi = spiedino, yaki = cotto alla griglia."],
+ che:["Specialità di Chef Masa","CHEF MASA のスペシャリテ","I piatti firma dello chef."],
+ sus:["Chirashi e Uramaki","ちらし寿司・裏巻き","Chirashi: riso da sushi in ciotola con pesce tagliato al coltello. Chirashi = «sparso»."],
+ shi:["Shime","〆の物","Piatti per chiudere il pasto: donburi, udon, soba. Shime = «chiusura»."]
+};
+// [sezione, nome, kanji, piatto (breve), dettagli, prezzo, significato, scomposizione]
+const D=[
+ ["oma","Matsu","松","Percorso degustazione di punta, sei portate","Il vertice della visione dello chef: intensità e ingredienti d'eccellenza. Abbinamento sake rari e iconici +60","150 a persona","Pino","matsu = pino. Nella scala classica pino-bambù-prugno il pino è il livello più alto."],
+ ["oma","Take","竹","Sei portate: due stagionali, tre spiedini, gindara, wagyu alla brace e riso, dessert del giorno","Abbinamento sake complessi e dinamici +50","120 a persona","Bambù","take = bambù. Livello intermedio della scala pino-bambù-prugno."],
+ ["oma","Ume","梅","Cinque portate: una stagionale, quattro spiedini, imo tako nankin, chirashi speciale, dessert del giorno","Abbinamento sake eleganti e floreali +40","90 a persona","Prugno (susino in fiore)","ume = prugno giapponese. Il percorso più delicato."],
+ ["sta","Aki no Miyama","秋の深山","Tartare di tonno marinata nella salsa di soia","Con takuan, shiso, sesamo e hanawasabi, cialda di tofu e miso essiccato","28","Montagna profonda d'autunno","aki = autunno · no = di · miyama = montagna remota, nel profondo dei monti"],
+ ["sta","Kinshu","錦秋","Ricciola cruda con uva bianca","Crema di tofu al goma-zu, scorza di yuzu, erba cipollina, cialda e polvere di shiso rosso","24","Autunno di broccato","kin = broccato, tessuto colorato · shu = autunno. Le foglie rosse e gialle sembrano un tessuto prezioso."],
+ ["sta","Kinuta no Ne","砧の音","Involtino di salmone crudo e daikon","Con uova di salmone, gelatina all'aceto di mandarino e yuzu kosho","26","Il suono del kinuta","kinuta = battitoio di legno per la stoffa; anche il taglio del daikon in un foglio sottile come un tessuto · ne = suono"],
+ ["sta","Gyutan no Hoba Miso Yaki","牛舌の朴葉味噌焼き","Lingua di manzo al miso su foglia di hoba","Marinata nel miso, cotta a bassa temperatura e scottata alla fiamma; kinpira di carota e topinambur, chips di zucca","32","Lingua di manzo cotta al miso su foglia di magnolia","gyu = manzo · tan = lingua · hoba = foglia di magnolia giapponese · yaki = cotto"],
+ ["sta","Shime Saba Sando","〆鯖サンド","Sandwich di sgombro marinato","Con gorgonzola, riso al koji e shibazuke, wasabi e shiso","18","Sandwich di sgombro marinato","shime saba = sgombro marinato in sale e aceto · sando = sandwich"],
+ ["ant","Temaki Wagyu Amaebi","手巻き和牛と甘エビ","Temaki con wagyu battuto al coltello e gambero dolce","Amaebi marinato al koji e tuorlo di quaglia","18","Rotolo fatto a mano con manzo giapponese e gambero dolce","te = mano · maki = arrotolato · wagyu = manzo giapponese · ama = dolce · ebi = gambero"],
+ ["ant","Takoten","蛸の天婦羅 烏賊墨仕立て","Polpo in tempura al nero di seppia","Pastella leggera e croccante al nero di seppia, salsa tartara allo zenzero rosso giapponese","20","Tempura di polpo","tako = polpo · ten = tempura · ikasumi (nel nome giapponese) = nero di seppia"],
+ ["ant","Kaki Fry","カキフライの和牛巻き キャビア添え","Ostrica fritta avvolta nel wagyu A5","Servita con caviale e salsa tartara fatta in casa","26","Ostrica fritta","kaki = ostrica (non il frutto!) · fry = fritto. Nel nome completo: avvolta nel wagyu, con caviale."],
+ ["ant","Wagyu no Tataki","和牛のたたき","Wagyu A5 scottato alla brace e tagliato sottile","Insalata orientale fresca, uovo cotto a bassa temperatura e salsa al sesamo tostato","38","Manzo giapponese scottato","tataki = scottato fuori e crudo dentro · nel nome completo: onsen tamago = uovo cotto lento"],
+ ["kus","Momo","もも","Spiedino di coscia di pollo","Coscia di pollo succosa","8","Coscia","momo = coscia"],
+ ["kus","Tsukune","つくね","Spiedino di polpetta di pollo","Polpetta di pollo preparata a mano","10","Polpetta (impastata a mano)","tsukune = carne tritata impastata e modellata a mano"],
+ ["kus","Tebasaki","手羽先","Spiedino di ali di pollo croccanti","Con salsa teriyaki e sesamo","8","Punta d'ala","te = mano/braccio · ha = ala · saki = punta"],
+ ["kus","Butabara Tomato","豚バラトマト","Spiedino di pomodoro avvolto nella pancetta di maiale","Pomodoro avvolto nella pancetta","8","Pancetta di maiale e pomodoro","buta = maiale · bara = pancetta"],
+ ["kus","Gari Butamaki","豚バラ生姜巻き","Spiedino di pancetta di maiale con zenzero marinato","Sapore intenso e leggermente piccante","10","Zenzero avvolto nel maiale","gari = zenzero marinato · buta = maiale · maki = avvolto"],
+ ["kus","Sake","鮭","Spiedino di salmone fresco","Salmone fresco alla brace","16","Salmone","sake 鮭 = salmone. Attenzione: è un'altra parola rispetto al sake da bere (酒)."],
+ ["kus","Tara Negima","銀鱈葱","Spiedino di black cod con cipollotto dolce","Black cod morbido e succulento","16","Merluzzo nero e cipollotto alternati","(gin)dara = black cod · negima = cipollotto (negi) alternato alla carne (ma = «tra»)"],
+ ["kus","Negi Maguro","鮪の葱間","Spiedino di ventresca di tonno con cipollotto dolce","Ventresca di tonno alternata a cipollotto","18","Tonno e cipollotto","negi = cipollotto · maguro = tonno"],
+ ["kus","Unagi","鰻","Spiedino di anguilla alla brace","Glassata con salsa kabayaki","20","Anguilla","unagi = anguilla d'acqua dolce"],
+ ["kus","Wagyu Negi","和牛葱","Spiedino di manzo wagyu A5 con cipollotto dolce","Wagyu qualità A5","26","Manzo giapponese e cipollotto","wagyu = manzo giapponese · negi = cipollotto"],
+ ["kus","Melanzana (Nasu)","茄子","Spiedino di melanzana","Melanzana cotta lentamente al carbone","6","Melanzana","nasu = melanzana"],
+ ["kus","Friggitelli (Aotō)","青唐","Spiedino di friggitelli","Piccoli peperoni verdi dal gusto fresco","6","Peperoncino verde (dolce)","ao = verde · tō(garashi) = peperoncino"],
+ ["kus","Funghi (Kinoko)","きのこ","Spiedino di funghi misti","Funghi misti dall'aroma naturale intenso","6","Funghi","kinoko = funghi"],
+ ["kus","Mais (Tōmorokoshi)","とうもろこし","Spiedino di mais dolce","Mais dolce arrostito, leggermente caramellato","6","Mais","tōmorokoshi = mais"],
+ ["kus","Kushiyaki Selezione","串焼き六種盛り","Selezione di sei spiedini assortiti del giorno","Scelta dello chef","26","Assortimento di sei spiedini","kushi = spiedino · yaki = cotto · roku = sei · shu = tipi · mori = assortimento"],
+ ["che","Imo Tako Nankin","芋蛸南京","Polpo confit con satoimo fritto e zucca al curry","Purea di zucca al curry e scorza di lime grattugiata","32","Tubero, polpo e zucca","imo = tubero (satoimo, «patata» giapponese) · tako = polpo · nankin = zucca. Trio classico, citato in un vecchio detto di Edo sulle cose che piacciono alle donne."],
+ ["che","Gindara 2.0","銀鱈 2.0","Black cod marinato nel miso bianco","Con chips di radice di loto e polvere di dashi","38","Merluzzo d'argento (versione 2.0)","gindara = black cod, letteralmente «merluzzo d'argento»"],
+ ["che","Unagi to Foie Gras","鰻とフォアグラ","Anguilla alla brace con foie gras","Foie gras marinato nel sakekasu e nel miso Saikyo, servito con pane al vapore","34","Anguilla e foie gras","unagi = anguilla · to = e"],
+ ["che","Wagyu Hamburger","和牛ハンバーグ","Hamburger di wagyu in salsa al miso","Con uovo a bassa temperatura (senza pane)","38","Hamburger di manzo giapponese","hanbāgu = polpettone a forma di hamburger, servito senza pane"],
+ ["che","Wagyu Sumibiyaki","和牛炭火焼","Wagyu A5 alla brace direttamente al tavolo (100 g)","Carne estremamente tenera dal sapore intenso e burroso","65","Manzo giapponese cotto sul carbone","wagyu = manzo giapponese · sumibi = fuoco di carbone · yaki = cotto"],
+ ["che","Wagyu A5 Tonyu Shabu Shabu","和牛の豆乳しゃぶしゃぶ","Wagyu A5 affettato sottile da cuocere nel brodo di latte di soia (120 g)","Con cavolo cinese e funghi, salsa al sesamo e yuzu kosho","85","Shabu shabu di manzo nel latte di soia","tonyu = latte di soia · shabu shabu = il suono della carne mossa nel brodo · A5 = grado più alto del wagyu"],
+ ["sus","Chirashi Sake","鮭","Chirashi con salmone fresco","Salmone dal sapore delicato e pulito su riso da sushi","22","Salmone «sparso» sul riso","chirashi = sparso · sake 鮭 = salmone"],
+ ["sus","Chirashi Special","特選","Chirashi con pesci misti e frutti di mare","Selezione di pesci e frutti di mare freschi con frittata tamagoyaki","30","Selezione speciale","tokusen = scelta speciale · tamagoyaki = frittata giapponese arrotolata"],
+ ["sus","Chirashi Oyako","鮭親子","Chirashi con salmone e uova di salmone","Uova di salmone marinate in salsa di soia","28","Genitore e figlio","oya = genitore · ko = figlio: il salmone e le sue uova"],
+ ["sus","Sake Aburi Bosushi","鮭炙り","Uramaki di salmone e avocado con salmone scottato","Salsa teriyaki e cipolla fritta","28","Sushi a bastone di salmone scottato","sake = salmone · aburi = scottato alla fiamma · bō = bastone · sushi"],
+ ["sus","Saba Aburi Bosushi","鯖炙り","Bosushi di sgombro marinato scottato alla fiamma","Riso da sushi con shibazuke, scorza di yuzu, shiso tritato e sesamo","24","Sushi a bastone di sgombro scottato","saba = sgombro · aburi = scottato alla fiamma · bō = bastone"],
+ ["shi","Toro Tekka Don","黒鮪のとろ鉄火丼","Ciotola di riso con sashimi e tartare di ventresca di tonno","Con shiso fresco e wasabi, uovo a bassa temperatura","30","Ciotola «ferro rovente» di ventresca di tonno","toro = ventresca grassa · tekka = ferro rovente (il rosso del tonno) · don = ciotola di riso · kuro maguro = tonno rosso"],
+ ["shi","Unagi Don","鰻丼","Ciotola di riso con anguilla alla brace","Glassata con salsa kabayaki, uovo a bassa temperatura","28","Ciotola di riso con anguilla","unagi = anguilla · don = ciotola di riso"],
+ ["shi","Gindara Don","銀鱈丼","Ciotola di riso con black cod dell'Alaska scottato","Con cipollotto e yuzu, uovo a bassa temperatura","22","Ciotola di riso con merluzzo d'argento","gindara = black cod · don = ciotola di riso"],
+ ["shi","Wagyu Udon","和牛うどん","Udon in brodo dashi con wagyu shigureni","Uovo a bassa temperatura, cipollotto e tenkasu","24","Udon con manzo giapponese","udon = spaghettoni di grano · shigureni = cotto in soia, zucchero e zenzero · tenkasu = briciole di tempura"],
+ ["shi","Tori Nanban Seiro Soba","鶏南蛮せいろ","Soba fredda da intingere in brodo caldo nanban","Con pollo e cipollotto grigliato","22","Soba sul cestino con pollo in stile nanban","tori = pollo · nanban = stile con cipollotto · seiro = cestino di bambù per le soba fredde · soba = spaghetti di grano saraceno"]
+].map(([c,n,k,s,d,p,m,x],i)=>({i,c,n,k,s,d,p,m,x}));
+
+const G=[
+ ["Omakase","おまかせ","«Mi affido a te»: decide lo chef"],
+ ["Matsu · Take · Ume","松・竹・梅","Pino, bambù, prugno: tre livelli dal più alto al più delicato"],
+ ["Don / Donburi","丼","Ciotola di riso con sopra il condimento"],
+ ["Shime","〆","Chiusura del pasto; in shime saba = marinato in sale e aceto"],
+ ["Sumibi","炭火","Fuoco di carbone"],
+ ["Yaki","焼き","Cotto alla griglia o alla piastra"],
+ ["Kushi","串","Spiedino"],
+ ["Aburi","炙り","Scottato alla fiamma"],
+ ["Tataki","たたき","Scottato fuori, crudo dentro"],
+ ["Maki / Temaki","巻き・手巻き","Arrotolato / arrotolato a mano"],
+ ["Bōzushi","棒寿司","Sushi pressato a forma di bastone"],
+ ["Chirashi","ちらし","«Sparso»: pesce sparso sul riso"],
+ ["Wagyu","和牛","Manzo giapponese"],
+ ["A5","A5","Grado più alto di qualità del wagyu"],
+ ["Gyu / Gyutan","牛・牛タン","Manzo / lingua di manzo"],
+ ["Buta / Bara","豚・バラ","Maiale / pancetta"],
+ ["Tori","鶏","Pollo"],
+ ["Sake 鮭","鮭","Salmone (diverso dal sake da bere 酒)"],
+ ["Saba","鯖","Sgombro"],
+ ["Maguro / Toro","鮪・とろ","Tonno / ventresca grassa del tonno"],
+ ["Unagi","鰻","Anguilla d'acqua dolce"],
+ ["Gindara","銀鱈","Black cod («merluzzo d'argento»)"],
+ ["Tako","蛸","Polpo"],
+ ["Ika / Ikasumi","烏賊・烏賊墨","Seppia, calamaro / nero di seppia"],
+ ["Ebi / Amaebi","エビ・甘エビ","Gambero / gambero dolce (crudo)"],
+ ["Kaki","牡蠣","Ostrica (nel menu non è il frutto)"],
+ ["Negi","葱","Cipollotto"],
+ ["Imo / Satoimo","芋・里芋","Tubero / taro giapponese"],
+ ["Nankin","南京","Zucca"],
+ ["Nasu","茄子","Melanzana"],
+ ["Kinoko","きのこ","Funghi"],
+ ["Gari","ガリ","Zenzero marinato (quello del sushi)"],
+ ["Tamago / Tamagoyaki","卵・卵焼き","Uovo / frittata giapponese arrotolata"],
+ ["Onsen tamago","温泉卵","Uovo cotto lentamente a bassa temperatura"],
+ ["Tonyu","豆乳","Latte di soia"],
+ ["Shabu shabu","しゃぶしゃぶ","Carne sottile passata nel brodo caldo"],
+ ["Kabayaki","蒲焼","Anguilla glassata con salsa dolce di soia"],
+ ["Shiso","紫蘇","Erba aromatica giapponese (perilla)"],
+ ["Yuzu / Yuzu kosho","柚子・柚子胡椒","Agrume giapponese / pasta di yuzu e peperoncino"],
+ ["Koji","麹","Fermento di riso usato per marinare"],
+ ["Takuan","沢庵","Daikon in salamoia (giallo)"],
+ ["Shibazuke","柴漬け","Sottaceto viola di melanzana e cetriolo con shiso rosso"],
+ ["Sakekasu","酒粕","Feccia del sake, usata per marinare"],
+ ["Udon / Soba","うどん・そば","Spaghettoni di grano / spaghetti di grano saraceno"],
+ ["Seiro","せいろ","Cestino di bambù su cui si servono le soba fredde"],
+ ["Tenkasu","天かす","Briciole croccanti di tempura"]
+].map(([t,k,m],i)=>({i,t,k,m}));
+
+let mode="mix", on=new Set(Object.keys(CATS)), ok=0, tot=0, streak=0, missed=[], last=-1, cur=null;
+const $=id=>document.getElementById(id);
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const price=p=>/^\d+$/.test(p)?p+" €":p.replace(/^(\d+)/,"$1 €");
+const descHTML=x=>`<strong>${esc(x.s)}</strong><br><span class="sm">${esc(x.d)}</span>`;
+
+function buildCats(){
+  const dis=mode==="voc";
+  $("cats").innerHTML=Object.entries(CATS).map(([k,v])=>`<button class="chip" id="c-${k}" data-c="${k}" aria-pressed="${on.has(k)}" ${dis?"disabled":""}>${v[0]}</button>`).join("");
+}
+$("cats").onclick=e=>{const b=e.target.closest("[data-c]");if(!b||b.disabled)return;const k=b.dataset.c;
+  if(on.has(k)){if(on.size===1)return;on.delete(k)}else on.add(k);buildCats();next()};
+$("modes").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;mode=b.dataset.m;
+  document.querySelectorAll("#modes .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));buildCats();next()};
+$("reset").onclick=()=>{ok=tot=streak=0;missed=[];score();next()};
+function score(){$("sc").textContent=`${ok}/${tot}`;$("st").textContent=streak}
+
+function next(){
+  if(mode==="voc")return nextVoc();
+  const pool=D.filter(x=>on.has(x.c));
+  $("pool").textContent=`${pool.length} piatti nel quiz`;
+  let it;const m=missed.filter(k=>k[0]==="d"&&on.has(D[+k.slice(1)].c));
+  if(m.length&&Math.random()<.35)it=D[+m[Math.random()*m.length|0].slice(1)];
+  else{do{it=pool[Math.random()*pool.length|0]}while(pool.length>1&&it.i===last)}
+  last=it.i;
+  const dir=mode==="mix"?["nd","dn","nm"][Math.random()*3|0]:mode;
+  const same=shuf(pool.filter(x=>x.i!==it.i&&x.c===it.c)),other=shuf(D.filter(x=>x.i!==it.i&&x.c!==it.c));
+  const opts=shuf([it,...same.concat(other).slice(0,3)]);
+  cur={kind:"d",it,dir,opts,done:false};
+  const head=`<div class="cat">${CATS[it.c][0]}</div>`;
+  const nameBlock=`<div class="big">${esc(it.n)}</div><div class="kj">${esc(it.k)}</div>`;
+  $("q").innerHTML=head+(dir==="nd"?`<div class="prompt">Che piatto è?</div>${nameBlock}`
+    :dir==="nm"?`<div class="prompt">Che cosa significa il nome?</div>${nameBlock}`
+    :`<div class="prompt">Come si chiama questo piatto?</div><div class="desc">${descHTML(it)}</div>`);
+  const lbl=o=>dir==="nd"?descHTML(o):dir==="nm"?esc(o.m):esc(o.n);
+  renderOpts(opts.map(lbl),dir==="dn");
+}
+function nextVoc(){
+  $("pool").textContent=`${G.length} parole nel quiz`;
+  let it;const m=missed.filter(k=>k[0]==="g");
+  if(m.length&&Math.random()<.35)it=G[+m[Math.random()*m.length|0].slice(1)];
+  else{do{it=G[Math.random()*G.length|0]}while(it.i===last)}
+  last=it.i;
+  const opts=shuf([it,...shuf(G.filter(x=>x.i!==it.i)).slice(0,3)]);
+  cur={kind:"g",it,opts,done:false};
+  $("q").innerHTML=`<div class="cat">Parole giapponesi</div><div class="prompt">Che cosa significa?</div><div class="big">${esc(it.t)}</div><div class="kj">${esc(it.k)}</div>`;
+  renderOpts(opts.map(o=>esc(o.m)),false);
+}
+function renderOpts(labels,isName){
+  $("opts").innerHTML=labels.map((l,k)=>`<button class="opt ${isName?"name":""}" id="o${k}" data-k="${k}"><span class="k">${"ABCD"[k]}</span><span class="t">${l}</span></button>`).join("");
+  $("fbwrap").innerHTML="";
+}
+
+$("opts").onclick=e=>{
+  const b=e.target.closest(".opt");if(!b||cur.done)return;cur.done=true;
+  const it=cur.it,pick=cur.opts[+b.dataset.k],good=pick.i===it.i,key=cur.kind+it.i;
+  tot++;if(good){ok++;streak++;missed=missed.filter(k=>k!==key)}else{streak=0;if(!missed.includes(key))missed.push(key)}
+  score();
+  document.querySelectorAll(".opt").forEach((el,k)=>{el.disabled=true;
+    if(cur.opts[k].i===it.i)el.classList.add("right");else if(el===b)el.classList.add("wrong")});
+  const v=`<div class="v" style="color:var(${good?"--ok":"--ko"})">${good?"Giusto!":"Sbagliato"}</div>`;
+  const tail=good?"":" · la riproporrò più avanti";
+  $("fbwrap").innerHTML=(cur.kind==="g"
+    ?`<div class="fb ${good?"":"bad"}">${v}<div class="n">${esc(it.t)}<span>${esc(it.k)}</span></div><div>${esc(it.m)}</div>${tail?`<div class="meta">${tail.slice(3)}</div>`:""}</div>`
+    :`<div class="fb ${good?"":"bad"}">${v}<div class="n">${esc(it.n)}<span>${esc(it.k)}</span></div>
+      <div>${esc(it.s)}. <span class="sm">${esc(it.d)}.</span></div>
+      <div class="mean"><b>«${esc(it.m)}»</b><br>${esc(it.x)}</div>
+      <div class="meta">${esc(price(it.p))}${tail}</div></div>`)
+    +`<button class="next" id="nx">Prossimo →</button>`;
+  $("nx").onclick=next;$("nx").focus({preventScroll:true});
+};
+document.addEventListener("keydown",e=>{
+  if(!cur||$("quizView").hidden||e.target.matches("input"))return;
+  if(!cur.done){const k="abcd1234".indexOf(e.key.toLowerCase());if(k>=0)$("o"+(k%4))?.click()}
+  else if(e.key==="Enter"&&document.activeElement?.id!=="nx")next();
+});
+
+// --- Menu ---
+let mcat="all";
+function buildMcats(){
+  $("mcats").innerHTML=[["all","Tutto"],...Object.entries(CATS).map(([k,v])=>[k,v[0]])]
+    .map(([k,v])=>`<button class="chip" id="mc-${k}" data-mc="${k}" aria-pressed="${mcat===k}">${v}</button>`).join("");
+}
+function renderMenu(){
+  const q=$("search").value.trim().toLowerCase();
+  const html=Object.entries(CATS).filter(([k])=>mcat==="all"||mcat===k).map(([k,v])=>{
+    const items=D.filter(x=>x.c===k&&(!q||[x.n,x.k,x.s,x.d,x.m,x.x].join(" ").toLowerCase().includes(q)));
+    if(!items.length)return "";
+    return `<section class="mcat"><h2>${v[0]}<span>${v[1]}</span></h2><p class="intro">${esc(v[2])}</p>`+items.map(x=>`<div class="dish">
+      <div class="dn">${esc(x.n)}<span>${esc(x.k)}</span></div><div class="dp">${esc(price(x.p))}</div>
+      <div class="ds">${esc(x.s)}</div><div class="dd">${esc(x.d)}</div>
+      <div class="mean"><b>«${esc(x.m)}»</b><br>${esc(x.x)}</div></div>`).join("")+`</section>`;
+  }).join("");
+  $("mlist").innerHTML=html||`<p class="sm">Nessun piatto trovato.</p>`;
+}
+$("mcats").onclick=e=>{const b=e.target.closest("[data-mc]");if(!b)return;mcat=b.dataset.mc;buildMcats();renderMenu()};
+$("search").oninput=renderMenu;
+
+// --- Glossario ---
+function renderGloss(){
+  const q=$("gsearch").value.trim().toLowerCase();
+  const items=G.filter(g=>!q||(g.t+" "+g.k+" "+g.m).toLowerCase().includes(q));
+  $("glist").innerHTML=items.map(g=>`<div class="gt">${esc(g.t)}<span>${esc(g.k)}</span></div><div class="gm">${esc(g.m)}</div>`).join("")||`<p class="sm">Nessuna parola trovata.</p>`;
+}
+$("gsearch").oninput=renderGloss;
+
+document.querySelector(".tabs").onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;const v=b.dataset.v;
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t===b));
+  $("quizView").hidden=v!=="quiz";$("menuView").hidden=v!=="menu";$("glossView").hidden=v!=="gloss";
+  $("scorebox").style.visibility=v==="quiz"?"":"hidden";};
+
+buildCats();score();next();buildMcats();renderMenu();renderGloss();
+</script>
+
+</body>
+</html>
